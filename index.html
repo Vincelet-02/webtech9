@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html ng-app="medicalApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Grey Sloan Memorial Hospital</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eaf5f8;
+            margin: 0;
+        }
+        header {
+            background: #087e8b;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        nav {
+            background: #075c66;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 15px;
+            font-weight: bold;
+        }
+        .content, form {
+            background: white;
+            max-width: 450px;
+            margin: 25px auto;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 0 8px #bbb;
+        }
+        h2, h3 {
+            text-align: center;
+            color: #087e8b;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 7px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background: #087e8b;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #075c66;
+        }
+        .error {
+            color: red;
+            font-size: 13px;
+        }
+        .success {
+            color: green;
+            text-align: center;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Grey Sloan Memorial Hospital</h1>
+    <p>Your Health, Our Priority</p>
+</header>
+<nav>
+    <a href="#!/">Home</a>
+    <a href="#!/appointment">Book Appointment</a>
+    <a href="#!/doctors">Our Doctors</a>
+</nav>
+<div ng-view></div>
+<footer>
+    <p>Grey Sloan Memorial Hospital | Medical Appointment System</p>
+</footer>
+<script>
+var app = angular.module("medicalApp", ["ngRoute"]);
+app.config(function($routeProvider) {
+    $routeProvider
+    .when("/", {
+        template: `
+            <div class="content">
+                <h2>Welcome to Grey Sloan Memorial Hospital</h2>
+                <p>We provide quality medical care for every patient.</p>
+                <p>Choose a doctor and schedule your appointment.</p>
+                <a href="#!/appointment">Book an Appointment</a>
+            </div>`
+    })
+    .when("/appointment", {
+        template: `
+            <form name="appointmentForm"
+                  ng-controller="AppointmentController"
+                  ng-submit="book(appointmentForm)"
+                  novalidate>
+                <h2>Patient Appointment Form</h2>
+                <label>Patient Name</label>
+                <input type="text" name="patient"
+                    ng-model="patient"
+                    ng-required="true"
+                    ng-pattern="/^[a-zA-Z ]+$/">
+                <p class="error"
+                   ng-show="appointmentForm.patient.$touched &&
+                   appointmentForm.patient.$invalid">
+                    Enter a valid name.
+                </p>
+                <label>Email Address</label>
+                <input type="email" name="email"
+                    ng-model="email" ng-required="true">
+                <p class="error"
+                   ng-show="appointmentForm.email.$touched &&
+                   appointmentForm.email.$invalid">
+                    Enter a valid email address.
+                </p>
+                <label>Mobile Number</label>
+                <input type="text" name="mobile"
+                    ng-model="mobile"
+                    ng-required="true"
+                    ng-pattern="/^[0-9]{10}$/">
+                <p class="error"
+                   ng-show="appointmentForm.mobile.$touched &&
+                   appointmentForm.mobile.$invalid">
+                    Enter a valid 10-digit mobile number.
+                </p>
+                <label>Age</label>
+                <input type="number" name="age"
+                    ng-model="age" min="1" max="120"
+                    ng-required="true">
+                <p class="error"
+                   ng-show="appointmentForm.age.$touched &&
+                   appointmentForm.age.$invalid">
+                    Enter an age between 1 and 120.
+                </p>
+                <label>Gender</label>
+                <select name="gender" ng-model="gender"
+                    ng-required="true">
+                    <option value="">Select Gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                </select>
+                <label>Select Doctor</label>
+                <select name="doctor" ng-model="doctor"
+                    ng-required="true">
+                    <option value="">Choose a Doctor</option>
+                    <option>Dr. Meredith Grey - General Surgery</option>
+                    <option>Dr. Derek Shepherd - Neurosurgery</option>
+                    <option>Dr. Miranda Bailey - General Surgery</option>
+                    <option>Dr. Cristina Yang - Cardio Surgery</option>
+                    <option>Dr. Alex Karev - Pediatrics</option>
+                    <option>Dr. Addison Montgomery - Obstetrics</option>
+                    <option>Dr. Richard Webber - Surgery</option>
+                    <option>Dr. Jackson Avery - Plastic Surgery</option>
+                </select>
+                <label>Appointment Date</label>
+                <input type="date" name="date"
+                    ng-model="date"
+                    min="{{today}}" ng-required="true">
+                <label>Appointment Time</label>
+                <select name="time" ng-model="time"
+                    ng-required="true">
+                    <option value="">Select Time</option>
+                    <option>09:00 AM</option>
+                    <option>10:00 AM</option>
+                    <option>11:00 AM</option>
+                    <option>02:00 PM</option>
+                    <option>03:00 PM</option>
+                    <option>04:00 PM</option>
+                </select>
+                <label>Reason for Visit</label>
+                <textarea name="reason" ng-model="reason"
+                    ng-required="true"
+                    placeholder="Describe your reason for visiting">
+                </textarea>
+                <button type="submit">Book Appointment</button>
+                <button type="button" ng-click="clear(appointmentForm)">
+                    Clear Form
+                </button>
+                <div class="success" ng-if="message">
+                    <h3>{{message}}</h3>
+                    <p>Patient: {{patient}}</p>
+                    <p>Doctor: {{doctor}}</p>
+                    <p>Date: {{date | date:'dd-MM-yyyy'}}</p>
+                    <p>Time: {{time}}</p>
+                </div>
+            </form>`
+    })
+    .when("/doctors", {
+        template: `
+            <div class="content">
+                <h2>Our Medical Team</h2>
+                <p><b>Dr. Meredith Grey</b> - General Surgery</p>
+                <p><b>Dr. Derek Shepherd</b> - Neurosurgery</p>
+                <p><b>Dr. Miranda Bailey</b> - General Surgery</p>
+                <p><b>Dr. Cristina Yang</b> - Cardiothoracic Surgery</p>
+                <p><b>Dr. Alex Karev</b> - Pediatrics</p>
+                <p><b>Dr. Addison Montgomery</b> - Obstetrics</p>
+                <p><b>Dr. Richard Webber</b> - Surgery</p>
+                <p><b>Dr. Jackson Avery</b> - Plastic Surgery</p>
+                <a href="#!/appointment">Book an Appointment</a>
+            </div>`
+    })
+    .otherwise({
+        redirectTo: "/"
+    });
+});
+app.controller("AppointmentController", function($scope) {
+    var now = new Date();
+    $scope.today = now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0");
+    $scope.book = function(form) {
+        if (form.$valid) {
+            $scope.message =
+                "Appointment Request Submitted Successfully!";
+        } else {
+            $scope.message = "";
+            form.$setSubmitted();
+        }
+    };
+    $scope.clear = function(form) {
+        $scope.patient = "";
+        $scope.email = "";
+        $scope.mobile = "";
+        $scope.age = null;
+        $scope.gender = "";
+        $scope.doctor = "";
+        $scope.date = null;
+        $scope.time = "";
+        $scope.reason = "";
+        $scope.message = "";
+        form.$setPristine();
+        form.$setUntouched();
+    };
+});
+</script>
+</body>
+</html>
